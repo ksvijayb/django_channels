@@ -1,0 +1,37 @@
+<!-- execution_stream/templates/index.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Live Execution</title>
+</head>
+<body>
+    <textarea id="output" rows="20" cols="50" readonly></textarea>
+
+    <script>
+        var socket = new WebSocket("ws://" + window.location.host + "/ws/execute/");
+
+        socket.onmessage = function(event) {
+            var outputTextArea = document.getElementById('output');
+            outputTextArea.value += event.data;
+        };
+
+        socket.onclose = function(event) {
+            if (event.wasClean) {
+                console.log('Connection closed cleanly, code=' + event.code + ', reason=' + event.reason);
+            } else {
+                console.error('Connection died');
+            }
+        };
+
+        socket.onerror = function(error) {
+            console.error('WebSocket Error: ' + error);
+        };
+
+        function sendCommand() {
+            var command = document.getElementById('command').value;
+            socket.send(JSON.stringify({'command': command}));
+        }
+    </script>
+</body>
+</html>
